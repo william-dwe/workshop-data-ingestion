@@ -1,7 +1,7 @@
 # Data Ingestion with APIs and Webhooks (workshop notebook)
 
-Hands-on Google Colab notebook for **"The Art of Connecting Data: APIs and Webhooks for Non-Engineers"**
-(analytic × ecommurz). You only run cells and change one value per exercise. No coding from scratch.
+Hands-on Google Colab notebook for **"The Art of Connecting Data: APIs and Webhooks for Non-Engineers"**.
+You only run cells and change one value per exercise. No coding from scratch.
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/william-dwe/workshop-data-ingestion/blob/main/workshop_api_webhook.ipynb)
 
