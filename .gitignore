@@ -1,0 +1,17 @@
+# Local tooling
+.venv/
+.jupyter/
+__pycache__/
+
+# Presenter-only / internal material (kept in the private repo, not published)
+BRIEF.md
+slides/
+docs/
+OUTLINE.html
+architecture.html
+
+# Never commit credentials
+.env
+.env.*
+*.key
+*.pem
