@@ -6,8 +6,9 @@ import requests
 import pandas as pd
 
 NTFY = "https://ntfy.sh"
+SMEE = "https://smee.io"
 DUMMY = "https://dummyjson.com"
-# Only for testing: pretend ntfy is down.
+# Only for testing: pretend ntfy and smee are down.
 FORCE_FALLBACK = os.environ.get("FORCE_FALLBACK") == "1"
 
 # Sample data used when ntfy is down or says "too many requests" (HTTP 429).
@@ -24,6 +25,35 @@ SAMPLE_ORDERS = [_o("a1", "Ana", 1, 2), _o("a2", "Budi", 11, 1), _o("a3", "Citra
     "oops this is not json {"]          # malformed message
 SAMPLE_EVENTS = [{"id": f"s{i}", "event": "message", "message": m}
                  for i, m in enumerate(SAMPLE_ORDERS)]
+
+def new_smee_channel():
+    """Make a free smee.io receiver URL. Returns the URL, or None if smee is down."""
+    try:
+        if FORCE_FALLBACK:
+            raise requests.ConnectionError("FORCE_FALLBACK is on")
+        r = requests.get(f"{SMEE}/new", allow_redirects=False, timeout=10)
+        url = r.headers["Location"]
+        if not url.startswith(SMEE + "/"):
+            raise ValueError("unexpected reply from smee")
+        return url
+    except Exception as e:
+        print(f"WARNING: could not reach smee.io ({e}).")
+        return None
+
+def send_webhook(url, payload):
+    """POST a dict as JSON to a receiver URL. Returns the status code, or None."""
+    if not url:
+        print("No smee link, so nothing was sent. A real webhook looks like this:")
+        print("  Headers: content-type = application/json | x-source = toko-kelas")
+        print("  Body:   ", json.dumps(payload))
+        return None
+    try:
+        r = requests.post(url, json=payload, headers={"X-Source": "toko-kelas"}, timeout=10)
+        r.raise_for_status()
+        return r.status_code
+    except Exception as e:
+        print(f"WARNING: could not send to smee ({e}).")
+        return None
 
 def get_json(path, **params):
     """GET from DummyJSON. Returns (response, data)."""

@@ -36,4 +36,9 @@ assert len(h.new_since(evs, None)) == 5
 # fallback sample data: 2 duplicates + 1 malformed
 df, skipped, before = h.clean_orders(h.SAMPLE_EVENTS)
 assert (skipped, before - len(df)) == (1, 2) and len(h.SAMPLE_ORDERS) == 15
+# smee: no link means nothing is sent and nothing crashes; a forced outage returns no channel
+assert h.send_webhook(None, {"order_id": "x"}) is None
+h.FORCE_FALLBACK = True
+assert h.new_smee_channel() is None
+h.FORCE_FALLBACK = False
 print("all tests passed")
