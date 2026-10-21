@@ -136,14 +136,3 @@ def clean_orders(events):
     orders = [o for o in good if o]
     df = pd.DataFrame(orders, columns=["order_id", "customer", "product_id", "qty", "ts"])
     return df.drop_duplicates("order_id").reset_index(drop=True), len(good) - len(orders), len(df)
-
-def enrich(orders, products):
-    """Add title and revenue = price * qty to each order."""
-    df = orders.merge(products, left_on="product_id", right_on="id", how="left")
-    df["revenue"] = df["price"] * df["qty"]
-    return df
-
-def top_products(enriched, n=5):
-    """Revenue per product, biggest first."""
-    return (enriched.groupby("title", as_index=False)["revenue"].sum()
-            .sort_values("revenue", ascending=False).head(n).reset_index(drop=True))

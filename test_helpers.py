@@ -19,13 +19,14 @@ assert skipped == len(bad) and len(df) == 1 and before == 1
 df, skipped, before = h.clean_orders([ev("1", good("a")), ev("2", good("a")), ev("3", good("b"))])
 assert (before, len(df), skipped) == (3, 2, 0) and list(df.order_id) == ["a", "b"]
 
-# revenue math
+# revenue math: run the notebook's own 5e cell on a tiny dataset
 prods = pd.DataFrame({"id": [1, 2], "title": ["A", "B"], "category": ["c", "c"], "price": [10.5, 4.0]})
 orders, _, _ = h.clean_orders([ev("1", good("a", 1, 2)), ev("2", good("b", 2, 3)), ev("3", good("c", 2, 1))])
-en = h.enrich(orders, prods)
-assert list(en.revenue) == [21.0, 12.0, 4.0]
-top = h.top_products(en)
-assert list(top.title) == ["A", "B"] and list(top.revenue) == [21.0, 16.0]
+cell = next(c.source for c in nb.cells if c.cell_type == "code" and "enriched = orders.merge" in c.source)
+ns = {"orders": orders, "products": prods}
+exec(cell.rsplit("\n", 1)[0], ns)   # drop the last line, which only displays `top`
+assert list(ns["enriched"].revenue) == [21.0, 12.0, 4.0]
+assert list(ns["top"].title) == ["A", "B"] and list(ns["top"].revenue) == [21.0, 16.0]
 
 # cursor logic returns only new ids
 evs = [ev(str(i), good(str(i))) for i in range(5)]
